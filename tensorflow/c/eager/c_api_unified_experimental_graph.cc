@@ -17,6 +17,7 @@ limitations under the License.
 #include <utility>
 #include <vector>
 
+#include "absl/status/status.h"
 #include "absl/strings/str_cat.h"
 #include "tensorflow/c/c_api.h"
 #include "tensorflow/c/eager/abstract_context.h"
@@ -33,7 +34,6 @@ limitations under the License.
 #include "tensorflow/core/framework/tensor_shape.h"
 #include "tensorflow/core/framework/types.pb.h"
 #include "tensorflow/core/lib/llvm_rtti/llvm_rtti.h"
-#include "tensorflow/core/platform/errors.h"
 #include "tensorflow/core/platform/strcat.h"
 #include "tensorflow/core/platform/types.h"
 
@@ -178,6 +178,11 @@ class GraphOperation : public TracingOperation {
     TF_RETURN_IF_ERROR(StatusFromTF_Status(s));
     TF_DeleteStatus(s);
     *num_retvals = TF_OperationNumOutputs(operation);
+    if (*num_retvals > retvals.size()) {
+      return absl::InvalidArgumentError(absl::StrCat(
+          "retvals span capacity (", retvals.size(),
+          ") is smaller than operation output count (", *num_retvals, ")"));
+    }
     for (int i = 0; i < *num_retvals; ++i) {
       retvals[i] = new GraphTensor({operation, i}, g_);
     }

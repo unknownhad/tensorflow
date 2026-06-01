@@ -935,6 +935,8 @@ tf_kernel_library(
         "//tensorflow/core:lib",
         "@com_google_absl//absl/container:btree",
         "@com_google_absl//absl/container:flat_hash_set",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/strings",
         "@eigen_archive//:eigen3",
     ],
 )
@@ -1425,6 +1427,7 @@ tf_kernel_library(
     features = ["-layering_check"],
     deps = [
         "//tensorflow/core:framework",
+        "//tensorflow/core/platform:errors",
     ],
 )
 
@@ -1454,6 +1457,8 @@ tf_kernel_library(
         "//tensorflow/core:lib",
         "//tensorflow/core:protos_all_cc",
         "//tensorflow/core/util:ragged_to_dense_util",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/strings",
     ],
 )
 
@@ -1586,9 +1591,10 @@ tf_kernel_library(
     prefix = "ragged_fill_empty_rows_op",
     deps = [
         "fill_empty_rows_functor",
+        ":gpu_prim_hdrs",
         "//tensorflow/core:framework",
         "//tensorflow/core:lib",
-    ] + [":gpu_prim_hdrs"] + if_cuda_or_rocm([
+    ] + if_cuda_or_rocm([
         ":gpu_prim_helpers",
     ]) + if_cuda([
         "//tensorflow/core/util:cuda_solvers",
@@ -2783,7 +2789,11 @@ tf_kernel_library(
         "gpu_device_array_gpu.h",
     ],
     prefix = "dynamic_stitch_op",
-    deps = DYNAMIC_DEPS + [":loose_headers"],
+    deps = DYNAMIC_DEPS + [
+        ":loose_headers",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/strings",
+    ],
 )
 
 cc_library(
@@ -2831,7 +2841,10 @@ tf_kernel_library(
 tf_kernel_library(
     name = "lookup_table_op",
     prefix = "lookup_table_op",
-    deps = LOOKUP_DEPS,
+    deps = LOOKUP_DEPS + [
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/strings",
+    ],
 )
 
 cc_library(
@@ -4532,6 +4545,7 @@ tf_kernel_library(
         "//tensorflow/core:framework",
         "//tensorflow/core:lib",
         "//tensorflow/core:lib_internal",
+        "@com_google_absl//absl/status",
         "@com_google_absl//absl/strings",
         "@eigen_archive//:eigen3",
     ],
@@ -5344,6 +5358,7 @@ tf_kernel_library(
     deps = SPARSE_DEPS + [
         ":loose_headers",
         "@eigen_archive//:eigen3",
+        "@xla//xla/stream_executor:device_memory",
     ] + if_cuda_or_rocm([
         ":gpu_utils",
         "//tensorflow/core/platform:stream_executor",
@@ -5950,6 +5965,8 @@ tf_kernel_library(
         "//tensorflow/core:lib_internal",
         "//tensorflow/core/framework:bounds_check",
         "//third_party/icu/data:conversion_data",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/strings",
         "@eigen_archive//:eigen3",
         "@icu//:common",
     ],
