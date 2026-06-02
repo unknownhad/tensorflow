@@ -87,7 +87,8 @@ class EagerOperation : public ImmediateExecutionOperation {
     last_set_device_name_ = "\177";  // DEL (an invalid value)
   }
 
-  absl::Status SetAttrValue(const char* attr_name, const AttrValue& value);
+  absl::Status SetAttrValue(const char* attr_name,
+                            const AttrValue& value) override;
 
   absl::Status AddInput(AbstractTensorHandle* input) override;
   absl::Status AddInputList(
