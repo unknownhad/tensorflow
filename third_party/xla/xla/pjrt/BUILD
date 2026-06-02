@@ -1154,6 +1154,7 @@ xla_cc_test(
         ":transpose",
         ":transpose_kernels",
         "//xla:array",
+        "//xla:ef57",
         "//xla:permutation_util",
         "//xla:types",
         "//xla:util",
