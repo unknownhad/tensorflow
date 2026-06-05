@@ -1,3 +1,4 @@
+# pylint: disable=missing-module-docstring
 # Copyright 2016 The TensorFlow Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,13 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-"""Tests for tf upgrader."""
+# Tests for tf upgrader.
 
 import shutil
 import tempfile
 
 import numpy as np
 import tensorflow as tf
+
 from tensorflow.python.framework import test_util
 from tensorflow.python.platform import test as test_lib
 

@@ -1,3 +1,4 @@
+# pylint: disable=missing-module-docstring
 # Copyright 2018 The TensorFlow Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-"""Tests for tf upgrader."""
+# Tests for tf upgrader.
 
 import tensorflow.compat.v1 as tf
 from tensorflow.python.framework import test_util
