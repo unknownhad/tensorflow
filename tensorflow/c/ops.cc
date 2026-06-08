@@ -55,8 +55,7 @@ void TF_OpDefinitionBuilderAddOutput(TF_OpDefinitionBuilder* builder,
 #define DEFINE_BUILDER_BOOL_SETTER(func_name)                             \
   void TF_OpDefinitionBuilder##func_name(TF_OpDefinitionBuilder* builder, \
                                          bool arg_name) {                 \
-    (void)arg_name;                                                       \
-    if (builder != nullptr) {                                             \
+    if (builder != nullptr && arg_name) {                                 \
       reinterpret_cast<OpDefBuilder*>(builder)->func_name();              \
     }                                                                     \
   }
