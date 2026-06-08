@@ -241,8 +241,19 @@ absl::StatusOr<uint64_t> HashFields(
       for (const auto& field : fields) {
         TF_ASSIGN_OR_RETURN(MutableFieldResult mfr,
                             GetMutableField(merged_message, field));
-        merged_message =
-            mfr.parent->GetReflection()->MutableMessage(mfr.parent, mfr.field);
+        if (mfr.field->is_repeated()) {
+          if (mfr.index != -1) {
+            merged_message =
+                mfr.parent->GetReflection()->MutableRepeatedMessage(
+                    mfr.parent, mfr.field, mfr.index);
+          } else {
+            merged_message =
+                mfr.parent->GetReflection()->AddMessage(mfr.parent, mfr.field);
+          }
+        } else {
+          merged_message = mfr.parent->GetReflection()->MutableMessage(
+              mfr.parent, mfr.field);
+        }
       }
       TF_ASSIGN_OR_RETURN(
           std::string chunk,

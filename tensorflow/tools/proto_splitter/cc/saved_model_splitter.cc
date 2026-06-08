@@ -39,6 +39,10 @@ absl::Status SavedModelSplitter::BuildChunks() {
   int max_size = GetMaxSize();
   if (GetInitialSize() < max_size) return absl::OkStatus();
 
+  if (sm->meta_graphs_size() == 0) {
+    return absl::FailedPreconditionError("SavedModel has no meta graphs.");
+  }
+
   std::vector<FieldType> fields_to_graph_def = {"meta_graphs"s, 0,
                                                 "graph_def"s};
   GraphDefSplitter graph_def_splitter(
