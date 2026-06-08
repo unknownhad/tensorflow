@@ -132,7 +132,19 @@ def _extract_archive(file_path, path='.', archive_format='auto'):
     if is_match_fn(file_path):
       with open_fn(file_path) as archive:
         try:
-          archive.extractall(path)
+          if archive_type == 'tar':
+            archive.extractall(path, filter='data')
+          else:
+            # zip
+            members = []
+            abs_path = os.path.realpath(os.path.abspath(path))
+            for member in archive.infolist():
+              abs_target = os.path.realpath(
+                  os.path.abspath(os.path.join(path, member.filename))
+              )
+              if os.path.commonpath([abs_path, abs_target]) == abs_path:
+                members.append(member)
+            archive.extractall(path, members=members)
         except (tarfile.TarError, RuntimeError, KeyboardInterrupt):
           if os.path.exists(path):
             if os.path.isfile(path):

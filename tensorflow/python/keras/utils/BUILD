@@ -68,6 +68,7 @@ py_library(
         ":io_utils",
         ":tf_inspect",
         "//tensorflow/python/framework:tensor",
+        "//third_party/py/numpy",
     ],
 )
 
