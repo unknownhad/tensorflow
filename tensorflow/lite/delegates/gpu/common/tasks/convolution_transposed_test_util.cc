@@ -101,6 +101,22 @@ absl::Status ConvolutionTransposedTest(TestExecutionEnvironment* env) {
           {2.5f, 4.5f, 8.5f, 18.5f, 6.5f, 8.5f, 28.5f, 38.5f, 14.5f, 32.5f,
            20.5f, 46.5f, 50.5f, 68.5f, 72.5f, 98.5f},
           dst_tensor.data, eps));
+
+      // Odd dimensions test (cropped output)
+      {
+        ConvolutionTransposedAttributes attr_odd = attr;
+        attr_odd.padding.appended = HW(1, 1);
+        TensorFloat32 dst_tensor_odd;
+        ConvolutionTransposed operation_odd =
+            CreateConvolutionTransposed(env->GetGpuInfo(), op_def, attr_odd);
+        RETURN_IF_ERROR(env->ExecuteGPUOperation(
+            src_tensor,
+            std::make_unique<ConvolutionTransposed>(std::move(operation_odd)),
+            BHWC(1, 3, 3, 1), &dst_tensor_odd));
+        RETURN_IF_ERROR(PointWiseNear(
+            {2.5f, 4.5f, 8.5f, 6.5f, 8.5f, 28.5f, 14.5f, 32.5f, 20.5f},
+            dst_tensor_odd.data, eps));
+      }
     }
   }
   return absl::OkStatus();
