@@ -195,6 +195,41 @@ absl::Status SetTfTensorFromTfLite(const TfLiteTensor* tensor,
   // preferable to somehow reuse the buffer.
   BaseTfLiteTensorBuffer* buf;
   if (tensor->type == kTfLiteString) {
+    if (tensor->data.raw != nullptr) {
+      if (tensor->bytes < sizeof(int32_t)) {
+        return absl::InvalidArgumentError(
+            "String tensor buffer too small for string count");
+      }
+      int num_strings = GetStringCount(tensor);
+      if (num_strings < 0 || num_strings > INT32_MAX - 2) {
+        return absl::InvalidArgumentError(
+            "Invalid string count in string tensor");
+      }
+      uint64_t required_bytes =
+          sizeof(int32_t) * (static_cast<uint64_t>(num_strings) + 2);
+      if (tensor->bytes < required_bytes) {
+        return absl::InvalidArgumentError(
+            "String tensor buffer too small for implied structure");
+      }
+
+      const int32_t* offsets =
+          reinterpret_cast<const int32_t*>(tensor->data.raw);
+      for (int i = 1; i <= num_strings; ++i) {
+        if (offsets[i] < 0 || offsets[i] < required_bytes ||
+            offsets[i] > tensor->bytes) {
+          return absl::InvalidArgumentError("Invalid string start offset");
+        }
+        if (i < num_strings && offsets[i] > offsets[i + 1]) {
+          return absl::InvalidArgumentError("Non-monotonic string offsets");
+        }
+      }
+      if (offsets[num_strings + 1] < offsets[num_strings] ||
+          offsets[num_strings + 1] < required_bytes ||
+          offsets[num_strings + 1] > tensor->bytes) {
+        return absl::InvalidArgumentError(
+            "Invalid total buffer length in string tensor");
+      }
+    }
     buf = new StringTfLiteTensorBuffer(tensor);
   } else {
     buf = new TfLiteTensorBuffer(tensor, allow_reusing);
