@@ -141,8 +141,10 @@ Outputs
       SH_ASSIGN_OR_RETURN(auto output_t,
                           ctx->GetOutput(kOutput3 + i, output_shape));
       const auto input_data = input_t->template Data<int64_t>();
-      auto output_buffer = output_t->template Data<int64_t>().data();
-      std::copy(input_data.begin(), input_data.end(), output_buffer);
+      auto output_data = output_t->template Data<int64_t>();
+      std::copy_n(input_data.begin(),
+                  std::min(input_data.size(), output_data.size()),
+                  output_data.begin());
       // Increment the values of the output
       for (auto& v : output_t->template Data<int64_t>()) ++v;
     }

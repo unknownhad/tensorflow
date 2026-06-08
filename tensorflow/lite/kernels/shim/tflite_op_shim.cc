@@ -111,7 +111,11 @@ TensorViewOr TfLiteInvokeContext::GetOutput(const int idx,
     }
     TfLiteIntArray* output_shape_array =
         ShapeToTfLiteShape(output_shape.value());
-    context_->ResizeTensor(context_, tflite_tensor, output_shape_array);
+    if (context_->ResizeTensor(context_, tflite_tensor, output_shape_array) !=
+        kTfLiteOk) {
+      return absl::InternalError(
+          absl::StrCat("Failed to resize output tensor. idx: ", idx));
+    }
   } else {
     DCHECK(TfLiteShapeToShape(tflite_tensor->dims) == output_shape);
   }
