@@ -331,6 +331,10 @@ cuda_py_strict_test(
     name = "context_cross_platform_gpu_test",
     size = "small",
     srcs = ["context_cross_platform_gpu_test.py"],
+    exec_properties = select({
+        "//tools/cpp:msan_build": {"cpp_link.mem": "16g"},
+        "//conditions:default": None,
+    }),
     tags = [
         "no_oss",
         "noasan",  # TODO(b/417285186): Re-enable once the test is fixed.
