@@ -122,7 +122,7 @@ TFE_Context* GetContextHandle(PyObject* py_context) {
   }
 
   auto* ctx = reinterpret_cast<TFE_Context*>(
-      PyCapsule_GetPointer(py_context_handle.get(), nullptr));
+      PyCapsule_GetPointer(py_context_handle.get(), "TFE_Context"));
   if (ctx == nullptr) {
     PyErr_SetString(
         PyExc_TypeError,

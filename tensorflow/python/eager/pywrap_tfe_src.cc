@@ -1206,8 +1206,8 @@ int64_t get_uid() { return _uid++; }
 PyObject* TFE_Py_UID() { return PyLong_FromLongLong(get_uid()); }
 
 void TFE_DeleteContextCapsule(PyObject* context) {
-  TFE_Context* ctx =
-      reinterpret_cast<TFE_Context*>(PyCapsule_GetPointer(context, nullptr));
+  TFE_Context* ctx = reinterpret_cast<TFE_Context*>(
+      PyCapsule_GetPointer(context, "TFE_Context"));
   auto op = ReleaseThreadLocalOp(ctx);
   op.reset();
   TFE_DeleteContext(ctx);
@@ -3775,7 +3775,7 @@ PyObject* TFE_Py_FastPathExecute_C(PyObject* args) {
       PyObject_GetAttrString(py_eager_context, "_context_handle");
 
   TFE_Context* ctx = reinterpret_cast<TFE_Context*>(
-      PyCapsule_GetPointer(eager_context_handle, nullptr));
+      PyCapsule_GetPointer(eager_context_handle, "TFE_Context"));
   op_exec_info.ctx = ctx;
   op_exec_info.args = args;
 
