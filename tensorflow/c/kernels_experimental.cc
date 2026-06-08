@@ -611,41 +611,37 @@ static Status CCBinaryAddFunc(
     return absl::OkStatus();
   }
 
-  Status status;
-  TF_Tensor* a = TF_TensorFromTensor(cc_a, &status);
-  TF_RETURN_IF_ERROR(status);
-
-  TF_Tensor* b = TF_TensorFromTensor(cc_b, &status);
-  if (!status.ok()) {
-    TF_DeleteTensor(a);
-    return status;
-  }
-
   ::tensorflow::AllocatorAttributes attr;
   if (cc_a.dtype() == ::tensorflow::DT_VARIANT) {
     attr.set_on_host(true);
   }
 
-  status = cc_ctx->allocate_temp(cc_a.dtype(), cc_a.shape(), cc_out, attr);
-  if (!status.ok()) {
-    TF_DeleteTensor(a);
-    TF_DeleteTensor(b);
-    return status;
-  }
+  Status status =
+      cc_ctx->allocate_temp(cc_a.dtype(), cc_a.shape(), cc_out, attr);
+  TF_RETURN_IF_ERROR(status);
 
-  TF_Tensor* out = TF_TensorFromTensor(*cc_out, &status);
-  if (!status.ok()) {
-    TF_DeleteTensor(a);
-    TF_DeleteTensor(b);
-    return status;
-  }
-
-  auto* ctx = reinterpret_cast<TF_OpKernelContext*>(cc_ctx);
   if (cc_a.dtype() == ::tensorflow::DT_VARIANT) {
     return VariantBinaryAddFunc(
         cc_ctx, cc_a.scalar<Variant>()(), cc_b.scalar<Variant>()(),
         cc_out->scalar<Variant>().data(), binary_add_func);
   } else {
+    TF_Tensor* a = TF_TensorFromTensor(cc_a, &status);
+    TF_RETURN_IF_ERROR(status);
+
+    TF_Tensor* b = TF_TensorFromTensor(cc_b, &status);
+    if (!status.ok()) {
+      TF_DeleteTensor(a);
+      return status;
+    }
+
+    TF_Tensor* out = TF_TensorFromTensor(*cc_out, &status);
+    if (!status.ok()) {
+      TF_DeleteTensor(a);
+      TF_DeleteTensor(b);
+      return status;
+    }
+
+    auto* ctx = reinterpret_cast<TF_OpKernelContext*>(cc_ctx);
     binary_add_func(ctx, a, b, out);
     return cc_ctx->status();
   }
