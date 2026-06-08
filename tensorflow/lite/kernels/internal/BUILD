@@ -507,7 +507,6 @@ cc_library(
     copts = tflite_copts(),
     deps = [
         ":common",
-        ":compatibility",
         ":runtime_shape",
         ":types",
         "//tensorflow/lite:macros",
