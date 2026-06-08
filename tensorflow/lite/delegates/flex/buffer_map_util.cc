@@ -195,6 +195,11 @@ absl::Status SetTfTensorFromTfLite(const TfLiteTensor* tensor,
   // preferable to somehow reuse the buffer.
   BaseTfLiteTensorBuffer* buf;
   if (tensor->type == kTfLiteString) {
+    int num_strings = tensor->data.raw != nullptr ? GetStringCount(tensor) : 0;
+    if (shape.num_elements() != num_strings) {
+      return absl::InvalidArgumentError(
+          "TFLite tensor shape does not match the number of strings.");
+    }
     buf = new StringTfLiteTensorBuffer(tensor);
   } else {
     buf = new TfLiteTensorBuffer(tensor, allow_reusing);
