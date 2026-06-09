@@ -182,5 +182,20 @@ TEST(GradientCheckerTest, StackUnstackGrad) {
   EXPECT_LT(max_error, 1e-10);
 }
 
+TEST(GradientCheckerTest, ShapeMismatchError) {
+  Scope scope = Scope::NewRootScope();
+  auto x = Placeholder(scope, DT_FLOAT);
+  auto y = ops::Concat(scope, std::vector<Output>{x, x}, ops::Const(scope, 0));
+
+  TensorShape x_shape({1});
+  TensorShape y_shape({4});  // Intentionally wrong, evaluate returns 2.
+
+  float max_error;
+  auto status = ComputeGradientError<float, float, float>(
+      scope, {x}, {x_shape}, {y}, {y_shape}, &max_error);
+  EXPECT_FALSE(status.ok());
+  EXPECT_EQ(status.code(), absl::StatusCode::kInvalidArgument);
+}
+
 }  // namespace
 }  // namespace tensorflow
